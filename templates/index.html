@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Greetings</title>
+</head>
+<body>
+    <h1>Greetings</h1>
+
+    <form action="/greet" method="post">
+        <label for="name">Enter a greeting:</label>
+        <input type="text" id="name" name="name">
+        <input type="submit" value="Submit">
+    </form>
+
+    <ul>
+        {% for greeting in greetings %}
+            <li>{{ greeting.name }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

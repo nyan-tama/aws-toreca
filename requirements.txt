@@ -1,0 +1,5 @@
+Flask
+gunicorn
+Flask-HTTPAuth
+psycopg2-binary
+
