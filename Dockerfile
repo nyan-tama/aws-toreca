@@ -12,6 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 環境変数を設定
 ENV FLASK_APP=app.py
+# デフォルトを本番環境に設定
+ENV ENVIRONMENT=production
 
 # Make command line prettier...
 RUN echo "alias ls='ls --color=auto'" >> /root/.bashrc

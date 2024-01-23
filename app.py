@@ -1,36 +1,58 @@
+from flask import Flask, render_template, request, redirect, url_for
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
-from dotenv import load_dotenv
+import psycopg2
+import psycopg2.extras
+import os
+import boto3
+import json
 
-load_dotenv() 
-
+app = Flask(__name__)
 auth = HTTPBasicAuth()
 
-auth_user = os.environ.get('AUTH_USER')
-auth_pass = os.environ.get('AUTH_PASS')
+# 環境に応じた設定の読み込み
+if os.environ.get('FLASK_ENV') == 'production':
+    # 本番環境 - AWS Secrets Managerから設定を読み込む
+    client = boto3.client('secretsmanager')
+    response = client.get_secret_value(SecretId='web-3sou')
+    secrets = json.loads(response['SecretString'])
+
+    auth_user = secrets['AUTH_USER']
+    auth_pass = secrets['AUTH_PASS']
+    db_name = secrets['DB_NAME']
+    db_user = secrets['DB_USER']
+    db_password = secrets['DB_PASSWORD']
+    db_host = secrets.get('DB_HOST', 'デフォルトのDBホスト')
+else:
+    # ローカル環境 - ハードコードされた値を使用
+    auth_user = 'localuser'
+    auth_pass = 'localpass'
+    db_name = 'localdb'
+    db_user = 'localuser'
+    db_password = 'localpassword'
+    db_host = 'db'
 
 users = {
     auth_user: generate_password_hash(auth_pass)
 }
 
-
 @auth.verify_password
 def verify_password(username, password):
-    if username in users and \
-            check_password_hash(users.get(username), password):
+    if username in users and check_password_hash(users.get(username), password):
         return username
-
-app = Flask(__name__)
 
 # データベース接続設定
 def get_db_connection():
     conn = psycopg2.connect(
-        dbname="exampledb",
-        user="exampleuser",
-        password="examplepass",
-        host="db"
+        dbname=db_name,
+        user=db_user,
+        password=db_password,
+        host=db_host
     )
     return conn
+
+# 以下、Flaskアプリのルートと関数定義...
+
 
 @app.route('/')
 @auth.login_required

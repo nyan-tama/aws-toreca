@@ -16,9 +16,9 @@ services:
   db:
     image: postgres:16.1
     environment:
-      POSTGRES_DB: exampledb
-      POSTGRES_USER: exampleuser
-      POSTGRES_PASSWORD: examplepass
+      POSTGRES_DB: localdb
+      POSTGRES_USER: localuser
+      POSTGRES_PASSWORD: localpassword
     ports:
       - "5432:5432"
     volumes:
