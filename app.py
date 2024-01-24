@@ -11,7 +11,7 @@ app = Flask(__name__)
 auth = HTTPBasicAuth()
 
 # 環境に応じた設定の読み込み
-if os.environ.get('FLASK_ENV') == 'production':
+if os.environ.get('ENVIRONMENT') == 'production':
     # 本番環境 - AWS Secrets Managerから設定を読み込む
     client = boto3.client('secretsmanager')
     response = client.get_secret_value(SecretId='web-3sou')
@@ -22,7 +22,7 @@ if os.environ.get('FLASK_ENV') == 'production':
     db_name = secrets['DB_NAME']
     db_user = secrets['DB_USER']
     db_password = secrets['DB_PASSWORD']
-    db_host = secrets.get('DB_HOST', 'デフォルトのDBホスト')
+    db_host = secrets.get('DB_HOST')
 else:
     # ローカル環境 - ハードコードされた値を使用
     auth_user = 'localuser'
