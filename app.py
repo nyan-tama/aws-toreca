@@ -27,17 +27,17 @@ def get_rds_endpoint(instance_identifier):
         return None
 
 # ここでインスタンス識別子を使用してエンドポイントを取得
-db_host = get_rds_endpoint('Web3souDbInstance')
+prod_db_host = get_rds_endpoint('Web3souDbInstance')
 
 
 # 環境に応じた設定の読み込み
 if os.environ.get('ENVIRONMENT') == 'production':
-    auth_user = get_parameter('prod_auth_user')
-    auth_pass = get_parameter('prod_auth_pass')
-    db_name = get_parameter('prod_db_name')
-    db_user = get_parameter('prod_db_user')
-    db_password = get_parameter('prod_db_password')
-    db_host = get_parameter('prod_db_host')
+    auth_user = get_parameter('/prod/auth_user')
+    auth_pass = get_parameter('/prod/auth_pass')
+    db_name = get_parameter('/prod/db_name')
+    db_user = get_parameter('/prod/db_user')
+    db_password = get_parameter('/prod/db_password')
+    db_host = prod_db_host
 else:
     # ローカル環境 - ハードコードされた値を使用
     auth_user = 'localuser'
