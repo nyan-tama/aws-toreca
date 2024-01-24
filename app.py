@@ -16,7 +16,7 @@ def get_parameter(name):
     return parameter['Parameter']['Value']
 
 def get_rds_endpoint(instance_identifier):
-    client = boto3.client('rds')
+    client = boto3.client('rds', region_name='ap-northeast-1')
     try:
         response = client.describe_db_instances(DBInstanceIdentifier=instance_identifier)
         db_instances = response['DBInstances']

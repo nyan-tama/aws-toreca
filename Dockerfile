@@ -17,6 +17,8 @@ COPY . /app
 ENV FLASK_APP=app.py
 # デフォルトを本番環境に設定
 ENV ENVIRONMENT=production
+# AWSのデフォルトリージョンを設定
+ENV AWS_DEFAULT_REGION=ap-northeast-1  
 
 # Make command line prettier...
 RUN echo "alias ls='ls --color=auto'" >> /root/.bashrc
