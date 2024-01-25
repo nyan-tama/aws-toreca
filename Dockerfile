@@ -4,14 +4,11 @@ FROM python:3.9
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# 依存関係ファイルをコンテナにコピー
-COPY requirements.txt /app/
+# アプリケーションのコピー
+COPY . /app
 
 # 依存関係をインストール
 RUN pip install --no-cache-dir -r requirements.txt
-
-# アプリケーションのコピー
-COPY . /app
 
 # 環境変数を設定
 ENV FLASK_APP=app.py

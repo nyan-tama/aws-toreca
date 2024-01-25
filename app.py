@@ -34,6 +34,7 @@ prod_db_host = get_rds_endpoint('Web3souDbInstance')
 if os.environ.get('ENVIRONMENT') == 'production':
     auth_user = get_parameter('/prod/auth_user')
     auth_pass = get_parameter('/prod/auth_pass')
+
     db_name = get_parameter('/prod/db_name')
     db_user = get_parameter('/prod/db_user')
     db_password = get_parameter('/prod/db_password')
@@ -42,6 +43,7 @@ else:
     # ローカル環境 - ハードコードされた値を使用
     auth_user = 'localuser'
     auth_pass = 'localpass'
+    
     db_name = 'localdb'
     db_user = 'localuser'
     db_password = 'localpassword'
