@@ -16,18 +16,6 @@ def get_parameter(name):
     parameter = ssm.get_parameter(Name=name, WithDecryption=True)
     return parameter['Parameter']['Value']
 
-# RDSインスタンスのエンドポイントを取得
-def get_rds_endpoint(instance_identifier):
-    client = boto3.client('rds', region_name='ap-northeast-1')
-    try:
-        response = client.describe_db_instances(DBInstanceIdentifier=instance_identifier)
-        db_instances = response['DBInstances']
-        if len(db_instances) > 0:
-            return db_instances[0]['Endpoint']['Address']
-    except Exception as e:
-        print(f"Error in getting RDS endpoint: {e}")
-        return None
-
 # AWS Secrets Managerからシークレットを取得
 def get_secret(secret_name, region_name='ap-northeast-1'):
     client = boto3.client('secretsmanager', region_name=region_name)
@@ -44,10 +32,6 @@ def get_secret(secret_name, region_name='ap-northeast-1'):
         return None
 
 
-# ここでインスタンス識別子を使用してエンドポイントを取得
-prod_db_host = get_rds_endpoint('Web3souDbInstance')
-
-
 # 環境に応じた設定の読み込み
 if os.environ.get('ENVIRONMENT') == 'production':
     auth_user = get_parameter('/prod_auth_user')
@@ -58,8 +42,7 @@ if os.environ.get('ENVIRONMENT') == 'production':
     
     db_secret = get_secret('DBCredentials')
     db_password = db_secret['password']
-    
-    db_host = prod_db_host
+    db_host= db_secret['host']
 else:
     # ローカル環境 - ハードコードされた値を使用
     auth_user = 'localuser'
