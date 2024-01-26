@@ -10,12 +10,6 @@ import json
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
-# SSM Parameter Storeからパラメータを取得
-def get_parameter(name):
-    ssm = boto3.client('ssm')
-    parameter = ssm.get_parameter(Name=name, WithDecryption=True)
-    return parameter['Parameter']['Value']
-
 # AWS Secrets Managerからシークレットを取得
 def get_secret(secret_name, region_name='ap-northeast-1'):
     client = boto3.client('secretsmanager', region_name=region_name)
@@ -34,15 +28,18 @@ def get_secret(secret_name, region_name='ap-northeast-1'):
 
 # 環境に応じた設定の読み込み
 if os.environ.get('ENVIRONMENT') == 'production':
-    auth_user = get_parameter('/prod_auth_user')
-    auth_pass = get_parameter('/prod_auth_pass')
-
-    db_name = get_parameter('/prod_db_name')
-    db_user = get_parameter('/prod_user_name')
+    # 認証情報の取得
+    auth_secret = get_secret('prod/auth')
+    auth_user = auth_secret['username']
+    auth_pass = auth_secret['password']
     
     db_secret = get_secret('DBCredentials')
+    db_name = db_secret['dbname']
+    db_user = db_secret['username']
     db_password = db_secret['password']
     db_host= db_secret['host']
+    
+
 else:
     # ローカル環境 - ハードコードされた値を使用
     auth_user = 'localuser'
