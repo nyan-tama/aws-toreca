@@ -54,11 +54,11 @@ if os.environ.get('ENVIRONMENT') == 'production':
     auth_pass = get_parameter('/prod_auth_pass')
 
     db_name = get_parameter('/prod_db_name')
-    db_secret_name = 'DBCredentials'  # CDKで指定したシークレット名
-    db_secret = get_secret(db_secret_name)
-    if db_secret is not None:
-        db_user = db_secret['username']
-        db_password = db_secret['password']
+    db_user = get_parameter('/prod_user_name')
+    
+    db_secret = get_secret('DBCredentials')
+    db_password = db_secret['password']
+    
     db_host = prod_db_host
 else:
     # ローカル環境 - ハードコードされた値を使用
