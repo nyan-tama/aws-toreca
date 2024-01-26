@@ -50,10 +50,10 @@ prod_db_host = get_rds_endpoint('Web3souDbInstance')
 
 # 環境に応じた設定の読み込み
 if os.environ.get('ENVIRONMENT') == 'production':
-    auth_user = get_parameter('/prod/auth_user')
-    auth_pass = get_parameter('/prod/auth_pass')
+    auth_user = get_parameter('/prod_auth_user')
+    auth_pass = get_parameter('/prod_auth_pass')
 
-    db_name = get_parameter('/prod/db_name')
+    db_name = get_parameter('/prod_db_name')
     db_secret_name = 'DBCredentials'  # CDKで指定したシークレット名
     db_secret = get_secret(db_secret_name)
     if db_secret is not None:
