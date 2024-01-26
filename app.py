@@ -10,11 +10,13 @@ import json
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
+# SSM Parameter Storeからパラメータを取得
 def get_parameter(name):
     ssm = boto3.client('ssm')
     parameter = ssm.get_parameter(Name=name, WithDecryption=True)
     return parameter['Parameter']['Value']
 
+# RDSインスタンスのエンドポイントを取得
 def get_rds_endpoint(instance_identifier):
     client = boto3.client('rds', region_name='ap-northeast-1')
     try:
@@ -26,6 +28,22 @@ def get_rds_endpoint(instance_identifier):
         print(f"Error in getting RDS endpoint: {e}")
         return None
 
+# AWS Secrets Managerからシークレットを取得
+def get_secret(secret_name, region_name='ap-northeast-1'):
+    client = boto3.client('secretsmanager', region_name=region_name)
+    try:
+        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+    except Exception as e:
+        print(f"Error in getting secret: {e}")
+        return None
+
+    if 'SecretString' in get_secret_value_response:
+        secret = get_secret_value_response['SecretString']
+        return json.loads(secret)
+    else:
+        return None
+
+
 # ここでインスタンス識別子を使用してエンドポイントを取得
 prod_db_host = get_rds_endpoint('Web3souDbInstance')
 
@@ -36,8 +54,11 @@ if os.environ.get('ENVIRONMENT') == 'production':
     auth_pass = get_parameter('/prod/auth_pass')
 
     db_name = get_parameter('/prod/db_name')
-    db_user = get_parameter('/prod/db_user')
-    db_password = get_parameter('/prod/db_password')
+    db_secret_name = 'DBCredentials'  # CDKで指定したシークレット名
+    db_secret = get_secret(db_secret_name)
+    if db_secret is not None:
+        db_user = db_secret['username']
+        db_password = db_secret['password']
     db_host = prod_db_host
 else:
     # ローカル環境 - ハードコードされた値を使用
@@ -47,7 +68,7 @@ else:
     db_name = 'localdb'
     db_user = 'localuser'
     db_password = 'localpassword'
-    db_host = 'db'
+    db_host = 'localhost'
 
 users = {
     auth_user: generate_password_hash(auth_pass)
