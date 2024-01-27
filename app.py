@@ -29,7 +29,7 @@ def get_secret(secret_name, region_name='ap-northeast-1'):
 # 環境に応じた設定の読み込み
 if os.environ.get('ENVIRONMENT') == 'production':
     # 認証情報の取得
-    auth_secret = get_secret('prod/auth')
+    auth_secret = get_secret('auth')
     auth_user = auth_secret['username']
     auth_pass = auth_secret['password']
     
