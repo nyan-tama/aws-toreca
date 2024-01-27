@@ -33,7 +33,7 @@ if os.environ.get('ENVIRONMENT') == 'production':
     auth_user = auth_secret['username']
     auth_pass = auth_secret['password']
     
-    db_secret = get_secret('DBCredentials')
+    db_secret = get_secret('prod_db')
     db_name = db_secret['dbname']
     db_user = db_secret['username']
     db_password = db_secret['password']
