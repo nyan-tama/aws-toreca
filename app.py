@@ -33,7 +33,7 @@ if os.environ.get('ENVIRONMENT') == 'production':
     auth_user = auth_secret['username']
     auth_pass = auth_secret['password']
     
-    db_secret = get_secret('prod_db')
+    db_secret = get_secret('prod_db') #prod_db本番の正確なsecretsに合わす必要あり
     db_name = db_secret['dbname']
     db_user = db_secret['username']
     db_password = db_secret['password']
@@ -48,7 +48,7 @@ else:
     db_name = 'localdb'
     db_user = 'localuser'
     db_password = 'localpassword'
-    db_host = 'localhost'
+    db_host = 'db'
 
 users = {
     auth_user: generate_password_hash(auth_pass)
