@@ -94,8 +94,6 @@ name VARCHAR(255) NOT NULL
 ```
 
 dockerからexitコマンドで終了
-docker ps -a で起動中のコンテナidを確認
-docker stop コンテナIDでDocker終了
 下記コマンドで再度起動
 docker run --rm --name flask-container -p 80:5000 -v "$(pwd)":/app aws-flask
 
