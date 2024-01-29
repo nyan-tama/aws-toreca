@@ -66,10 +66,9 @@ pass: localpass
 db_secret = get_secret('prod_db') #prod_dbはAWSのシークレットマネージャの名前に変更する必要あり
 
 docker build -t aws-flask .
-docker run -d --rm --name flask-container -v "$(pwd)":/app aws-flask
+起動＆docker内に入る
+docker run -it --rm --name flask-container -p 80:5000 -v "$(pwd)":/app aws-flask /bin/bash
 
-起動後、docker内に入る
-docker exec -it flask-container /bin/bash
 
 
 ### DB初期テーブル作成
@@ -97,8 +96,8 @@ name VARCHAR(255) NOT NULL
 dockerからexitコマンドで終了
 docker ps -a で起動中のコンテナidを確認
 docker stop コンテナIDでDocker終了
-下記コマンドで起動
-docker run --rm --name flask-container -v "$(pwd)":/app aws-flask
+下記コマンドで再度起動
+docker run --rm --name flask-container -p 80:5000 -v "$(pwd)":/app aws-flask
 
 以上でhttp接続までは完了
 AWSのALB（ロードバランサ）のDNSアドレスから動作確認可能
