@@ -5,11 +5,17 @@ FROM python:3.9
 WORKDIR /app
 
 # 依存関係をコピー
+
 COPY requirements.txt .
 
 # 依存関係をインストール
 RUN pip install --no-cache-dir -r requirements.txt
 
+# PostgreSQLクライアント（psql）をインストール
+RUN apt-get update && \
+    apt-get install -y postgresql-client && \
+    rm -rf /var/lib/apt/lists/*
+    
 # 環境変数を設定
 ENV FLASK_APP=app.py
 # デフォルトを本番環境に設定

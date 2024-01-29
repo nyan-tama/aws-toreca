@@ -57,20 +57,26 @@ docker-compose up
 - コンテナ化：Docker, Docker Compose
 
 
-## 本番設定
+
+## 本番環境の場合
 - app.pyの下記箇所を修正
 db_secret = get_secret('prod_db') #prod_db 本番の正確なsecretsに合わす必要あり
 
 docker build -t aws-flask .
-docker run --rm --name flask-container -p 80:5000 -v "$(pwd)":/app aws-flask
+docker run --rm --name flask-container -v "$(pwd)":/app aws-flask /bin/bash
+
+起動後、ログを表示続けたい場合は
+docker run --rm -it -v "$(pwd)":/app aws-flask
 
 
 ### DB初期テーブル作成
 ```
 psql \
--h rdsホスト名 \
+-h rdsエンドポイント \
 -U postgres \
 -d flask_db
+
+パスワードを聞かれるので、AWSのシークレットマネージャにある値を入力
 ```
 
 ```
@@ -85,7 +91,14 @@ name VARCHAR(255) NOT NULL
 \q
 ```
 
+dockerをexitして起動し直す
+docker run --rm --name flask-container -v "$(pwd)":/app aws-flask
+
+http接続までは完了
+ALBのDNSアドレスで動作確認
+
 ### SSLおよび独自ドメイン対応
 -
 -
 -
+R
