@@ -36,6 +36,9 @@ docker-compose build --no-cache
 docker-compose up
 
 3. アプリケーションが起動したら、ブラウザで `http://localhost:5000` にアクセスする。
+開発環境におけるベーシック認証情報
+id: localuser
+pass: localpass
 
 ### 使用方法
 
