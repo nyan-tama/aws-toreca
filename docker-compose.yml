@@ -20,6 +20,10 @@ services:
     volumes:
       - ./db-init:/docker-entrypoint-initdb.d
       - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=localdb
+      - POSTGRES_USER=localuser
+      - POSTGRES_PASSWORD=localpassword
 
 volumes:
   postgres-data:
