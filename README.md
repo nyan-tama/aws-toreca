@@ -1,8 +1,8 @@
 
 # アプリケーション名
-よくある3層構造のWEBアプリケーションです。
-このアプリケーションはFlaskを使用し、PostgreSQLデータベースに挨拶を保存するシンプルなWebアプリケーションです。
+AWSで動くLINE botアプリ
 
+ベースはよくある3層構造のWEBアプリケーションです。
 ## 特徴
 
 - FlaskベースのWebアプリケーション
@@ -20,11 +20,11 @@
 
 1. プロジェクトをクローンする：
 
-git clone https://github.com/nyan-tama/aws-flask.git
+git clone https://github.com/nyan-tama/aws-linebot.git
 
 2. Docker Composeを使用してアプリケーションとデータベースを起動する：
 
-cd aws-flask
+cd aws-linebot
 docker-compose up
 
 ※Docker内に入って作業する場合
@@ -65,9 +65,9 @@ pass: localpass
 - app.pyの下記箇所を修正
 db_secret = get_secret('prod_db') #prod_dbはAWSのシークレットマネージャの名前に変更する必要あり
 
-docker build -t aws-flask .
+docker build -t aws-linebot .
 起動＆docker内に入る
-docker run -it --rm --name flask-container -p 80:5000 -v "$(pwd)":/app aws-flask /bin/bash
+docker run -it --rm --name linebot-container -p 80:5000 -v "$(pwd)":/app aws-linebot /bin/bash
 
 
 
@@ -95,7 +95,7 @@ name VARCHAR(255) NOT NULL
 
 dockerからexitコマンドで終了
 下記コマンドで再度起動
-docker run --rm --name flask-container -p 80:5000 -v "$(pwd)":/app aws-flask
+docker run --rm --name linebot-container -p 80:5000 -v "$(pwd)":/app aws-linebot
 
 以上でhttp接続までは完了
 AWSのALB（ロードバランサ）のDNSアドレスから動作確認可能
