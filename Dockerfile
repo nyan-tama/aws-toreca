@@ -1,6 +1,10 @@
 # Python 3.9のベースイメージを使用
 FROM python:3.9
 
+# Node.js 20のインストール
+RUN apt-get update && \
+    apt-get install -y awscli
+
 # 作業ディレクトリを設定
 WORKDIR /app
 
@@ -11,7 +15,6 @@ RUN mkdir ~/.aws
 RUN mkdir ~/ssh
 
 # 依存関係をコピー
-
 COPY requirements.txt .
 
 # 依存関係をインストール
