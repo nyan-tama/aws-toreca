@@ -7,6 +7,8 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
+      - $HOME/.aws:/root/.aws
+      - $HOME/.ssh:/root/.ssh
     environment:
       - ENVIRONMENT=development
       - FLASK_ENV=development  # デバッグモードを有効にする

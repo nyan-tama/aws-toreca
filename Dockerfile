@@ -4,6 +4,12 @@ FROM python:3.9
 # 作業ディレクトリを設定
 WORKDIR /app
 
+# AWS認証ファイル格納ディレクトリを作成
+RUN mkdir ~/.aws
+
+# SSH接続用ファイル格納ディレクトリ作成
+RUN mkdir ~/ssh
+
 # 依存関係をコピー
 
 COPY requirements.txt .
