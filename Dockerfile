@@ -12,7 +12,7 @@ WORKDIR /app
 RUN mkdir ~/.aws
 
 # SSH接続用ファイル格納ディレクトリ作成
-RUN mkdir ~/ssh
+RUN mkdir ~/.ssh
 
 # 依存関係をコピー
 COPY requirements.txt .
