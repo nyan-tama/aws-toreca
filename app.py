@@ -69,8 +69,37 @@ def get_db_connection():
     )
     return conn
 
-# 以下、Flaskアプリのルートと関数定義...
 
+# Bedrockを利用します
+@app.route('/bedrock')
+def bedrock():
+    bedrock_runtime = boto3.client(
+        service_name='bedrock-runtime', 
+        region_name='us-east-1'
+    )
+    
+    modelId = 'anthropic.claude-v2' 
+    accept = 'application/json'
+    contentType = 'application/json'
+
+    prompt = (
+        "Human: ブラックホールについて教えて\n"
+        "Assistant: "
+    )
+
+    body = json.dumps({"prompt": prompt, "max_tokens_to_sample": 200})
+
+    response = bedrock_runtime.invoke_model(
+        body=body, 
+        modelId=modelId, 
+        accept=accept, 
+        contentType=contentType
+    )
+
+    response_body = json.loads(response.get('body').read())
+    return response_body
+
+# 以下、Flaskアプリの動作確認用
 
 @app.route('/')
 @auth.login_required
