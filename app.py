@@ -98,30 +98,33 @@ def request_bedrock(prompt):
 # Bedrockを利用します
 @app.route('/bedrock')
 def bedrock():
+    role_setting = "レトロゲームで売れっ子の西洋専門の凄腕クリエイターです"
+    user_request = "石の巨人のモンスター。めちゃくちゃ強い"
+
     prompt1 = (
-        "Human: ブラックホールについて教えて\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。創造的で魅力的なモンスターの名前を考え、<answer></answer>タグに日本語で出力してください。\n"
         "Assistant: "
-    )
+    ).format(role=role_setting, monster=user_request)
     
     prompt2 = (
-        "Human: 地球について教えて\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。モンスターの強さに合わせてHPを100から100000の間の数値で考えて生成してくれます。生成したモンスターのHPを<answer></answer>タグに数値で出力してください。\n"
         "Assistant: "
-    )
+    ).format(role=role_setting, monster=user_request)
 
     prompt3 = (
-        "Human: 月について教えて\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。属性名を火、水、風、土、光、闇の中から設定に合わせて選んでください。選択したモンスターの属性名を<answer></answer>タグに出力してください。\n"
         "Assistant: "
-    )
+    ).format(role=role_setting, monster=user_request)
     
     prompt4 = (
-        "Human: 火星について教えて\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。モンスターの必殺技の攻撃名とその技の解説を<answer></answer>タグに出力してください。出力するフォーマットは、<answer> 【必殺技名】：必殺技の解説 </answer>として、100文字以内で生成してください。\n"
         "Assistant: "
-    )
+    ).format(role=role_setting, monster=user_request)
 
     prompt5 = (
-        "Human: 太陽について教えて\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。モンスターのバックグラウンドがわかる伝説の言い伝えのエピソードを100文字以内でお願いします。\n"
         "Assistant: "
-    )
+    ).format(role=role_setting, monster=user_request)
 
     # ThreadPoolExecutorを使用して、二つのプロンプトに対してリクエストを非同期的に送信
     with ThreadPoolExecutor() as executor:
@@ -130,8 +133,6 @@ def bedrock():
         future3 = executor.submit(request_bedrock, prompt3)
         future4 = executor.submit(request_bedrock, prompt4)
         future5 = executor.submit(request_bedrock, prompt5)
-
-
 
         response1 = future1.result()
         response2 = future2.result()
