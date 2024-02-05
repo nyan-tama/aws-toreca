@@ -6,6 +6,8 @@ import psycopg2.extras
 import os
 import boto3
 import json
+from concurrent.futures import ThreadPoolExecutor
+
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -69,23 +71,16 @@ def get_db_connection():
     )
     return conn
 
-
-# Bedrockを利用します
-@app.route('/bedrock')
-def bedrock():
+# Bedrockにリクエストを送信する関数
+def request_bedrock(prompt):
     bedrock_runtime = boto3.client(
         service_name='bedrock-runtime', 
         region_name='us-east-1'
     )
     
-    modelId = 'anthropic.claude-v2' 
+    modelId = 'anthropic.claude-v2'
     accept = 'application/json'
     contentType = 'application/json'
-
-    prompt = (
-        "Human: ブラックホールについて教えて\n"
-        "Assistant: "
-    )
 
     body = json.dumps({"prompt": prompt, "max_tokens_to_sample": 200})
 
@@ -98,6 +93,55 @@ def bedrock():
 
     response_body = json.loads(response.get('body').read())
     return response_body
+
+
+# Bedrockを利用します
+@app.route('/bedrock')
+def bedrock():
+    prompt1 = (
+        "Human: ブラックホールについて教えて\n"
+        "Assistant: "
+    )
+    
+    prompt2 = (
+        "Human: 地球について教えて\n"
+        "Assistant: "
+    )
+
+    prompt3 = (
+        "Human: 月について教えて\n"
+        "Assistant: "
+    )
+    
+    prompt4 = (
+        "Human: 火星について教えて\n"
+        "Assistant: "
+    )
+
+    prompt5 = (
+        "Human: 太陽について教えて\n"
+        "Assistant: "
+    )
+
+    # ThreadPoolExecutorを使用して、二つのプロンプトに対してリクエストを非同期的に送信
+    with ThreadPoolExecutor() as executor:
+        future1 = executor.submit(request_bedrock, prompt1)
+        future2 = executor.submit(request_bedrock, prompt2)
+        future3 = executor.submit(request_bedrock, prompt3)
+        future4 = executor.submit(request_bedrock, prompt4)
+        future5 = executor.submit(request_bedrock, prompt5)
+
+
+
+        response1 = future1.result()
+        response2 = future2.result()
+        response3 = future3.result()
+        response4 = future4.result()
+        response5 = future5.result()
+
+
+    return {'response1': response1, 'response2': response2, 'response3': response3, 'response4': response4, 'response5': response5}
+
 
 # 以下、Flaskアプリの動作確認用
 
