@@ -98,50 +98,46 @@ def request_bedrock(prompt):
 # Bedrockを利用します
 @app.route('/bedrock')
 def bedrock():
-    role_setting = "レトロゲームで売れっ子の西洋専門の凄腕クリエイターです"
-    user_request = "石の巨人のモンスター。めちゃくちゃ強い"
+    role_setting = "ファンタジーとゲームの分野が得意な、発想豊かなクリエイターです。"
+    user_request = "氷の巨人でかなり強い"
 
     prompt1 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。創造的で魅力的なモンスターの名前を考え、<answer></answer>タグに日本語で出力してください。\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。奇抜なモンスターの名前を考え、<answer></answer>タグに出力してください。\n"
         "Assistant: "
     ).format(role=role_setting, monster=user_request)
+    response1 = request_bedrock(prompt1)
+    monster_name = response1['completion'].strip(" <answer></answer>")
     
     prompt2 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。モンスターの強さに合わせてHPを100から100000の間の数値で考えて生成してくれます。生成したモンスターのHPを<answer></answer>タグに数値で出力してください。\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。レベルを10段階で数値にして生成してくれます。『1,2,3,4,5,6,7,8,9,10』の中から設定に合わせて選んでください。レベルは小さいほど弱く、大きほど強いです。論理的に考え、モンスターのレベルを<answer></answer>タグに数値で出力してください。\n"
         "Assistant: "
     ).format(role=role_setting, monster=user_request)
+    response2 = request_bedrock(prompt2)
+    monster_level = response2['completion'].strip(" <answer></answer>")
 
     prompt3 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。属性名を火、水、風、土、光、闇の中から設定に合わせて選んでください。選択したモンスターの属性名を<answer></answer>タグに出力してください。\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。属性名を『火、水、風、土、光、闇』の中から設定に合わせて選んでください。選択したモンスターの属性名を<answer></answer>タグに出力してください。\n"
         "Assistant: "
     ).format(role=role_setting, monster=user_request)
+    response3 = request_bedrock(prompt3)
+    monster_element = response3['completion'].strip(" <answer></answer>")
     
     prompt4 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。モンスターの必殺技の攻撃名とその技の解説を<answer></answer>タグに出力してください。出力するフォーマットは、<answer> 【必殺技名】：必殺技の解説 </answer>として、100文字以内で生成してください。\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。{monster_name}というモンスターの名前、モンスターの属性である{monster_element}を資料にし、モンスターの特殊能力と特殊能力の説明を<answer>【特殊能力】：特殊能力の説明</answer>タグに100文字以内で出力してください。\n"
         "Assistant: "
-    ).format(role=role_setting, monster=user_request)
-
+    ).format(role=role_setting, monster=user_request, monster_name=monster_name, monster_element=monster_element)
+    response4 = request_bedrock(prompt4)
+    monster_ability = response4['completion'].strip(" <answer></answer>")
+    
     prompt5 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。モンスターのバックグラウンドがわかる伝説の言い伝えのエピソードを100文字以内でお願いします。\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。{monster_name}というモンスターの名前、モンスターの属性である{monster_element}、モンスターの特殊能力である{monster_ability}を資料にし、モンスターのバックグラウンドがわかる伝説の言い伝えのエピソードを<answer></answer>タグに100文字以内でお願いします。\n"
         "Assistant: "
-    ).format(role=role_setting, monster=user_request)
-
-    # ThreadPoolExecutorを使用して、二つのプロンプトに対してリクエストを非同期的に送信
-    with ThreadPoolExecutor() as executor:
-        future1 = executor.submit(request_bedrock, prompt1)
-        future2 = executor.submit(request_bedrock, prompt2)
-        future3 = executor.submit(request_bedrock, prompt3)
-        future4 = executor.submit(request_bedrock, prompt4)
-        future5 = executor.submit(request_bedrock, prompt5)
-
-        response1 = future1.result()
-        response2 = future2.result()
-        response3 = future3.result()
-        response4 = future4.result()
-        response5 = future5.result()
+    ).format(role=role_setting, monster=user_request, monster_name=monster_name, monster_element=monster_element, monster_ability=monster_ability)
+    response5 = request_bedrock(prompt5)
+    monster_episode = response5['completion'].strip(" <answer></answer>")
 
 
-    return {'response1': response1, 'response2': response2, 'response3': response3, 'response4': response4, 'response5': response5}
+    return {'response1': monster_name, 'response2': monster_level, 'response3': monster_element, 'response4': monster_ability, 'response5': monster_episode}
 
 
 # 以下、Flaskアプリの動作確認用
