@@ -82,7 +82,13 @@ def request_bedrock(prompt):
     accept = 'application/json'
     contentType = 'application/json'
 
-    body = json.dumps({"prompt": prompt, "max_tokens_to_sample": 200})
+    body = json.dumps({
+        "prompt": prompt,
+        "max_tokens_to_sample": 200,
+        "temperature": 0.9,
+        "top_k": 150,
+        "top_p": 0.7
+    })
 
     response = bedrock_runtime.invoke_model(
         body=body, 
@@ -106,9 +112,9 @@ def request_image_bedrock(prompt):
                     "text": prompt
                 }
             ],
-            "cfg_scale": 10,
-            "seed": 20,
-            "steps": 50
+            "cfg_scale": 5,
+            "seed": 30,
+            "steps": 120
         }),
         contentType='application/json'
     )
@@ -128,25 +134,25 @@ def translate_text(text, source_language_code, target_language_code):
 # Bedrockを利用します
 @app.route('/bedrock')
 def bedrock():
-    role_setting = "西洋のファンタジーとゲームの分野が得意な、発想豊かなクリエイターです。"
-    user_request = "炎を身に纏った熊のモンスター"
+    role_setting = "西洋ファンタジー専門家です"
+    user_request = "立派な顎を持ち岩も噛み砕く"
 
     prompt1 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。奇抜なモンスターの名前を考え、<answer></answer>タグに出力してください。\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。ファーストネーム・ミドルネームを持つ人間のようなモンスターの名前を生成し、<answer></answer>タグに出力してください。\n"
         "Assistant: "
     ).format(role=role_setting, monster=user_request)
     response1 = request_bedrock(prompt1)
     monster_name = response1['completion'].strip(" <answer></answer>")
     
     prompt2 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。レベルを10段階で数値にして生成してくれます。『1,2,3,4,5,6,7,8,9,10』の中から設定に合わせて選んでください。レベルは小さいほど弱く、大きほど強いです。論理的に考え、モンスターのレベルを<answer></answer>タグに数値で出力してください。\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。レベルを10段階で数値にして生成してくれます。『1,2,3,4,5,6,7,8,9,10』の中から設定に合わせて選んでください。レベルは小さいほど弱く、大きほど強いです。論理的に考え、モンスターのレベルを<answer></answer>タグに数値で出力してください。</answer>以降の解説は入りません\n"
         "Assistant: "
     ).format(role=role_setting, monster=user_request)
     response2 = request_bedrock(prompt2)
     monster_level = response2['completion'].strip(" <answer></answer>")
 
     prompt3 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。属性名を『火、水、風、土、光、闇』の中から設定に合わせて選んでください。選択したモンスターの属性名を<answer></answer>タグに出力してください。\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。属性を『火、水、風、土、光、闇』の中から設定に合わせて選んでください。選んだ属性を<answer></answer>タグに出力してください。</answer>以降の解説は入りません\n"
         "Assistant: "
     ).format(role=role_setting, monster=user_request)
     response3 = request_bedrock(prompt3)
@@ -160,7 +166,7 @@ def bedrock():
     monster_ability = response4['completion'].strip(" <answer></answer>")
     
     prompt5 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。{monster_name}というモンスターの名前、モンスターの属性である{monster_element}、モンスターの特殊能力である{monster_ability}を資料にし、モンスターのバックグラウンドがわかる伝説の言い伝えのエピソードを<answer></answer>タグに100文字以内でお願いします。\n"
+        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。{monster_name}というモンスターの名前、モンスターの属性である{monster_element}、モンスターの特殊能力である{monster_ability}を資料にし、モンスターのバックグラウンドがわかる悲しく恐ろしい伝説の言い伝えのエピソードを<answer></answer>タグに100文字以内でお願いします。\n"
         "Assistant: "
     ).format(role=role_setting, monster=user_request, monster_name=monster_name, monster_element=monster_element, monster_ability=monster_ability)
     response5 = request_bedrock(prompt5)
