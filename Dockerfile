@@ -24,6 +24,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN apt-get update && \
     apt-get install -y postgresql-client && \
     rm -rf /var/lib/apt/lists/*
+
+# Poppler-utilsとwkhtmltopdfのインストール
+RUN apt-get update && \
+    apt-get install -y poppler-utils wkhtmltopdf && \
+    rm -rf /var/lib/apt/lists/*
     
 # 環境変数を設定
 ENV FLASK_APP=app.py

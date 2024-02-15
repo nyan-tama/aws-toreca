@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, make_response
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
@@ -7,7 +7,10 @@ import os
 import boto3
 import json
 from concurrent.futures import ThreadPoolExecutor
-
+import pdfkit
+from pdf2image import convert_from_path
+from io import BytesIO
+from pdf2image import convert_from_path, convert_from_bytes
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -131,6 +134,37 @@ def translate_text(text, source_language_code, target_language_code):
     )
     return response['TranslatedText']
 
+def upload_file_to_s3(bucket_name, file_path, object_name):
+    """
+    指定されたS3バケットにファイルをアップロードする関数。
+    """
+    s3_client = boto3.client('s3')
+    with open(file_path, 'rb') as file:
+        s3_client.upload_fileobj(file, bucket_name, object_name)
+
+def convert_pdf_to_images_and_upload(pdf_content, bucket_name):
+    """
+    PDFコンテンツ（BytesIO）を画像に変換し、S3にアップロードする関数。
+    """
+    # BytesIOオブジェクトからバイト列を取得
+    pdf_bytes = pdf_content.getvalue()
+
+    # バイト列からPDFを画像に変換
+    images = convert_from_bytes(pdf_bytes)
+    s3_client = boto3.client('s3')
+
+    for i, image in enumerate(images):
+        # BytesIOオブジェクトに画像を保存
+        img_byte_arr = BytesIO()
+        image.save(img_byte_arr, format='JPEG')
+        img_byte_arr.seek(0)
+        
+        object_name = f"image_{i}.jpg"
+        
+        # S3にアップロード
+        s3_client.upload_fileobj(img_byte_arr, bucket_name, object_name)
+        print(f"Uploaded {object_name} to S3 bucket {bucket_name}.")
+
 # Bedrockを利用します
 @app.route('/bedrock')
 def bedrock():
@@ -191,7 +225,8 @@ def bedrock():
     # Base64エンコーディングされたイメージデータを取得
     image_data = generate_image['artifacts'][0]['base64']  # 必要に応じて構造を確認してください
 
-    return render_template('show_monster.html', 
+    # HTMLをレンダリング
+    rendered = render_template('show_monster.html', 
         response1 = monster_name,
         response2 = monster_level,
         response3 = monster_element,
@@ -199,6 +234,17 @@ def bedrock():
         response5 = monster_episode,
         response6 = image_data
     )
+    # PDFに変換
+    pdf = pdfkit.from_string(rendered, False)
+
+    # PDFコンテンツをBytesIOオブジェクトに変換
+    pdf_content = BytesIO(pdf)
+
+    # PDFを画像に変換し、S3にアップロード
+    bucket_name = 'elasticbeanstalk-ap-northeast-1-891377145933'
+    convert_pdf_to_images_and_upload(pdf_content, bucket_name)
+
+    return 'PDF converted to images and uploaded to S3 successfully!'
 
 
 # 以下、Flaskアプリの動作確認用

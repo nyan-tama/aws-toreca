@@ -1,5 +1,9 @@
 Flask
 Flask-HTTPAuth
-psycopg2
+Werkzeug
+psycopg2-binary
 boto3
+pdfkit
+pdf2image
+Pillow
 gunicorn
