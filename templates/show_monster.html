@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Monster Details</title>
+</head>
+<body>
+    <h1>Monster Details</h1>
+    <p>Name: {{ response1 }}</p>
+    <p>Level: {{ response2 }}</p>
+    <p>Element: {{ response3 }}</p>
+    <p>Ability: {{ response4 }}</p>
+    <p>Legend: {{ response5 }}</p>
+    <!-- 画像データがBase64エンコードされている場合の表示方法 -->
+    <img src="data:image/png;base64,{{ response6 }}" alt="Monster Image">
+    <!-- または、画像URLが直接渡される場合 -->
+    <!-- <img src="{{ response6 }}" alt="Monster Image"> -->
+</body>
+</html>

@@ -95,11 +95,41 @@ def request_bedrock(prompt):
     return response_body
 
 
+def request_image_bedrock(prompt):
+    client = boto3.client('bedrock-runtime',region_name='us-east-1')
+
+    response = client.invoke_model(
+        modelId='stability.stable-diffusion-xl-v1',
+        body=json.dumps({
+            'text_prompts': [
+                {
+                    "text": prompt
+                }
+            ],
+            "cfg_scale": 10,
+            "seed": 20,
+            "steps": 50
+        }),
+        contentType='application/json'
+    )
+
+    response_body = json.loads(response.get("body").read())
+    return response_body
+
+def translate_text(text, source_language_code, target_language_code):
+    translate_client = boto3.client('translate')
+    response = translate_client.translate_text(
+        Text=text,
+        SourceLanguageCode=source_language_code,
+        TargetLanguageCode=target_language_code
+    )
+    return response['TranslatedText']
+
 # Bedrockを利用します
 @app.route('/bedrock')
 def bedrock():
-    role_setting = "ファンタジーとゲームの分野が得意な、発想豊かなクリエイターです。"
-    user_request = "氷の巨人でかなり強い"
+    role_setting = "西洋のファンタジーとゲームの分野が得意な、発想豊かなクリエイターです。"
+    user_request = "炎を身に纏った熊のモンスター"
 
     prompt1 = (
         "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。奇抜なモンスターの名前を考え、<answer></answer>タグに出力してください。\n"
@@ -136,12 +166,36 @@ def bedrock():
     response5 = request_bedrock(prompt5)
     monster_episode = response5['completion'].strip(" <answer></answer>")
 
+    # 画像生成
+    prompt6 = "あたなたは{role}。油絵風のリアルなモンスターの絵を描いて下さい。色はたくさん使って下さい。絵の背景にはモンスターのエピソードである{monster_episode}を反映させます。ユーザーは{monster}というモンスターをリクエストしています。モンスターは名前は{monster_name}、モンスターの属性である{monster_element}で、モンスターのポーズはモンスターの特殊能力である{monster_ability}を参考に描いて下さい。".format(
+        role=role_setting,
+        monster=user_request,
+        monster_name=monster_name,
+        monster_element=monster_element,
+        monster_ability=monster_ability,
+        monster_episode=monster_episode
+    )
+    # 日本語のプロンプトを英語に翻訳
+    en_prompt6 = translate_text(prompt6, 'ja', 'en')
+    # 英訳したプロンプトでイメージをリクエスト
+    with ThreadPoolExecutor() as executor:
+        generate_image_future = executor.submit(request_image_bedrock, en_prompt6)
+        generate_image = generate_image_future.result()
 
-    return {'response1': monster_name, 'response2': monster_level, 'response3': monster_element, 'response4': monster_ability, 'response5': monster_episode}
+    # Base64エンコーディングされたイメージデータを取得
+    image_data = generate_image['artifacts'][0]['base64']  # 必要に応じて構造を確認してください
+
+    return render_template('show_monster.html', 
+        response1 = monster_name,
+        response2 = monster_level,
+        response3 = monster_element,
+        response4 = monster_ability,
+        response5 = monster_episode,
+        response6 = image_data
+    )
 
 
 # 以下、Flaskアプリの動作確認用
-
 @app.route('/')
 @auth.login_required
 def index():
